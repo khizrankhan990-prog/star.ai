@@ -1,138 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- 
+================================================================
+🚀 WEBSITE DEVELOPED BY: KHIZRAN (FULL-STACK DEVELOPER)
+💻 ARCHITECTURE: Node.js Express v5 backend with Custom Grid UI Layer
+📅 RELEASE YEAR: 2026
+================================================================
+-->
     <link rel="icon" type="image/png" href="/star.png">
     <meta name="author" content="Khizran - Full-Stack Developer">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star AI — Generation Cockpit</title>
-    <link href="https://googleapis.com" rel="stylesheet">
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-void: #07080d; --bg-elevated: #0b0d15; --bg-panel: #0e111b;
-            --glass-border: rgba(255, 255, 255, 0.09); --indigo: #6366f1;
-            --text-primary: #eef0f8; --text-secondary: #9296a8;
+        /* ============================================================
+        STAR AI — DESIGN TOKENS (PROFESSIONAL ORIGINAL CSS)
+        ============================================================ */
+         :root {
+            --bg-void: #07080d;
+            --bg-elevated: #0b0d15;
+            --bg-panel: #0e111b;
+            --glass-fill: rgba(255, 255, 255, 0.035);
+            --glass-fill-strong: rgba(255, 255, 255, 0.065);
+            --glass-border: rgba(255, 255, 255, 0.09);
+            --glass-border-bright: rgba(255, 255, 255, 0.16);
+            --indigo: #6366f1;
+            --indigo-soft: #818cf8;
+            --violet: #8b5cf6;
+            --violet-soft: #a78bfa;
+            --glow-indigo: rgba(99, 102, 241, 0.55);
+            --glow-violet: rgba(139, 92, 246, 0.45);
+            --text-primary: #eef0f8;
+            --text-secondary: #9296a8;
+            --text-tertiary: #5a5e70;
+            --success: #34d399;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 22px;
+            --ease: cubic-bezier(.22, .9, .32, 1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg-void); color: var(--text-primary); font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
-        .app-shell { display: flex; height: 100vh; width: 100vw; }
-        .sidebar { width: 272px; background: var(--bg-elevated); border-right: 1px solid var(--glass-border); padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-        .nav-btn { background: transparent; border: none; color: var(--text-secondary); text-align: left; padding: 10px; font-size: 14px; border-radius: 8px; width: 100%; margin-bottom: 5px; }
-        .nav-btn.active, .nav-btn:hover { background: rgba(99, 102, 241, 0.15); color: #fff; }
-        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-panel); position: relative; }
-        .chat-history { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-        .input-container { padding: 20px; border-top: 1px solid var(--glass-border); display: flex; gap: 12px; background: var(--bg-elevated); }
-        input { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px 20px; color: #fff; font-size: 14px; outline: none; }
-        button.send-btn { background: var(--indigo); border: none; border-radius: 12px; padding: 0 24px; color: #fff; font-weight: 600; cursor: pointer; }
-        .msg { max-width: 75%; padding: 12px 18px; border-radius: 12px; line-height: 1.5; font-size: 14.5px; }
-        .msg.user { background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99,102,241,0.4); align-self: flex-end; }
-        .msg.bot { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); align-self: flex-start; }
+        
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%; overflow: hidden; background: var(--bg-void); color: var(--text-primary); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
+        }
+        
+        /* BACKGROUND ELEMENTS */
+        .cosmic-field {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: radial-gradient(ellipse 900px 600px at 14% -10%, rgba(99, 102, 241, 0.16), transparent 60%), radial-gradient(ellipse 800px 700px at 108% 30%, rgba(139, 92, 246, 0.13), transparent 60%), linear-gradient(var(--bg-void), var(--bg-void));
+        }
+        .cosmic-field::before {
+            content: ""; position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 64px 64px; mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, #000 30%, transparent 85%);
+        }
+        .cosmic-orb {
+            position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; animation: drift 22s ease-in-out infinite;
+        }
+        .cosmic-orb.o1 { width: 420px; height: 420px; top: -140px; left: 18%; background: radial-gradient(circle, var(--glow-indigo), transparent 70%); }
+        .cosmic-orb.o2 { width: 380px; height: 380px; bottom: -120px; right: 8%; background: radial-gradient(circle, var(--glow-violet), transparent 70%); animation-delay: -9s; }
+        @keyframes drift { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -24px) scale(1.08); } }
+
+        /* SHELL AND SIDEBAR CODE */
+        .app-shell {
+            position: relative; z-index: 1; display: flex; height: 100vh; width: 100vw; overflow: hidden;
+        }
+        .sidebar {
+            width: 272px; flex-shrink: 0; display: flex; flex-direction: column; background: linear-gradient(180deg, var(--bg-elevated), var(--bg-void)); border-right: 1px solid var(--glass-border); padding: 26px 18px 20px; gap: 28px;
+        }
+        .brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; background: linear-gradient(120deg, #fff, var(--indigo-soft) 70%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .brand-sub { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 1.6px; color: var(--text-tertiary); text-transform: uppercase; }
+        
+        .nav-section { display: flex; flex-direction: column; gap: 6px; }
+        .nav-section-label { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px; }
+        
+        .nav-btn {
+            display: flex; align-items: center; width: 100%; padding: 12px 14px; background: transparent; border: none; border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500; gap: 12px; transition: all 0.2s var(--ease); text-align: left;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--glass-fill-strong); color: var(--text-primary); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .nav-btn.active { border-left: 3px solid var(--indigo); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding-left: 11px; background: rgba(99, 102, 241, 0.08); color: var(--indigo-soft); }
+
+        /* MAIN CONTENT AND CHAT WINDOW */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; background: rgba(7, 8, 13, 0.4); backdrop-filter: blur(8px);
+        }
+        .chat-history {
+            flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px;
+        }
+        
+        /* CHAT BUBBLES GRAPHICS LAYER */
+        .msg {
+            max-width: 70%; padding: 16px 20px; border-radius: var(--radius-md); line-height: 1.6; font-size: 14.5px; position: relative; animation: fadeIn 0.3s var(--ease) forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .msg.user {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(99, 102, 241, 0.25); align-self: flex-end; box-shadow: 0 8px 32px -8px rgba(99, 102, 241, 0.15); border-bottom-right-radius: 4px;
+        }
+        .msg.bot {
+            background: var(--bg-panel); border: 1px solid var(--glass-border); align-self: flex-start; box-shadow: 0 12px 40px -12px rgba(0,0,0,0.5); border-bottom-left-radius: 4px;
+        }
+
+        /* INPUT HUB LAYOUT */
+        .input-outer-container {
+            padding: 24px 40px 32px; background: linear-gradient(180deg, transparent, var(--bg-void) 40%);
+        }
+        .input-container {
+            background: var(--bg-panel); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 8px 8px 8px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 20px 50px -12px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02); transition: border 0.2s var(--ease);
+        }
+        .input-container:focus-within { border-color: rgba(99, 102, 241, 0.4); }
+        
+        input {
+            flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 14.5px; outline: none; font-family: inherit;
+        }
+        input::placeholder { color: var(--text-tertiary); }
+        
+        .send-btn {
+            background: linear-gradient(135deg, var(--indigo), var(--violet)); border: none; width: 44px; height: 44px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; transition: all 0.2s var(--ease); box-shadow: 0 4px 12px var(--glow-indigo);
+        }
+        .send-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
     </style>
 </head>
+
 <body>
+    <div class="cosmic-field">
+        <div class="cosmic-orb o1"></div>
+        <div class="cosmic-orb o2"></div>
+    </div>
 
     <div class="app-shell">
         <!-- SIDEBAR -->
         <div class="sidebar">
-            <h2 style="font-family:'Space Grotesk'; font-size:22px; color: #fff;">Star.AI</h2>
-            <p style="font-family:'JetBrains Mono'; font-size:10px; color:var(--text-secondary);">COCKPIT V4.2</p>
-            <div style="margin-top:20px;">
-                <button class="nav-btn active" onclick="setMode('text', this)">💬 AI Chat Engine</button>
-                <button class="nav-btn" onclick="setMode('image', this)">🎨 Image Studio</button>
+            <div class="brand">
+                <div>
+                    <h1 class="brand-name">Star.AI</h1>
+                    <div class="brand-sub">Cockpit V4.2</div>
+                </div>
+            </div>
+            
+            <div class="nav-section" style="margin-top: 20px;">
+                <div class="nav-section-label">Engine Layouts</div>
+                <button class="nav-btn active" onclick="setMode('text', this)">
+                    <span style="font-size:16px;">💬</span> AI Chat Engine
+                </button>
+                <button class="nav-btn" onclick="setMode('image', this)">
+                    <span style="font-size:16px;">🎨</span> Image Studio
+                </button>
             </div>
         </div>
 
-        <!-- MAIN APP WINDOW -->
+        <!-- MAIN APP CONTENT WINDOW -->
         <div class="main-content">
             <div class="chat-history" id="chatArea">
-                <div class="msg bot">Welcome to Star AI Core Hub Engine! Describe what you want to create or ask...</div>
+                <div class="msg bot">
+                    <strong>Star AI Hub Core Node Initialized.</strong><br>
+                    Welcome back! Type your request below or choose an layout engine from the sidebar.
+                </div>
             </div>
-            <div class="input-container">
-                <input type="text" id="userInput" placeholder="Describe what you want to create or ask...">
-                <button class="send-btn" id="sendBtn" onclick="executeGeneration()">Send</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CORE LIVE CONNECTOR ENGINE -->
-    <script>
-        let currentMode = 'text';
-
-        function setMode(mode, element) {
-            currentMode = mode;
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        async function executeGeneration() {
-            const inputEl = document.getElementById('userInput');
-            const chatArea = document.getElementById('chatArea');
-            const prompt = inputEl.value.trim();
-            if (!prompt) return;
-
-            // 1. Append User Text Node
-            const userMsg = document.createElement('div');
-            userMsg.className = 'msg user';
-            userMsg.textContent = prompt;
-            chatArea.appendChild(userMsg);
-            inputEl.value = '';
-            chatArea.scrollTop = chatArea.scrollHeight;
-
-            // 2. Append Live Status Buffer Loader
-            const loadingMsg = document.createElement('div');
-            loadingMsg.className = 'msg bot';
-            loadingMsg.style.color = 'var(--text-secondary)';
-            loadingMsg.textContent = 'Star AI Core Node processing pipeline...';
-            chatArea.appendChild(loadingMsg);
-
-            try {
-                if (currentMode === 'text') {
-                    const response = await fetch('/api/generate/text', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt })
-                    });
-                    const data = await response.json();
-                    loadingMsg.remove();
-
-                    const botMsg = document.createElement('div');
-                    botMsg.className = 'msg bot';
-                    botMsg.style.whiteSpace = 'pre-wrap';
-                    botMsg.textContent = data.status === 'success' ? data.output : 'Pipeline connection failure.';
-                    chatArea.appendChild(botMsg);
-                } 
-                else if (currentMode === 'image') {
-                    const response = await fetch('/api/generate/image', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt })
-                    });
-                    const data = await response.json();
-                    loadingMsg.remove();
-
-                    const botMsg = document.createElement('div');
-                    botMsg.className = 'msg bot';
-                    if (data.status === 'success') {
-                        botMsg.innerHTML = `<img src="${data.outputUrl}" alt="AI Gen" style="width:100%; max-width:450px; border-radius:10px; margin-top:5px; border:1px solid rgba(255,255,255,0.1);"/>`;
-                    } else {
-                        botMsg.textContent = 'Image generation system error.';
-                    }
-                    chatArea.appendChild(botMsg);
-                }
-                chatArea.scrollTop = chatArea.scrollHeight;
-            } catch (err) {
-                loadingMsg.remove();
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'msg bot';
-                errorMsg.style.color = '#ef4444';
-                errorMsg.textContent = 'Network Timeout. Verify local server gateway mapping.';
-                chatArea.appendChild(errorMsg);
-            }
-        }
-
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') executeGeneration();
-        });
-    </script>
-</body>
-</html>
+            
+            <div class="input-outer-container">
+                <div class="input-container">
+                    <input type="text" id="userInput" placeholder="Describe what you want to create or ask...">
+                    <button class="send-btn" id="sendBtn" onclick="executeGeneration()">
