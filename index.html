@@ -1456,13 +1456,50 @@
     </div>
 
     <script>
-        function openPaymentModal() {
-            document.getElementById('payment-modal').style.display = 'flex';
-        }
+        // ====== INPUT SUBMIT HANDLER (REAL API CONNECTION) ======
+async function handleAISubmit(promptText, mode) {
+    if (!promptText.trim()) return;
 
-        function closePaymentModal() {
-            document.getElementById('payment-modal').style.display = 'none';
+    // 1. Chat Box mein user ka message dikhane ka code (jo pehle se aapki site me hai)
+    appendUserMessage(promptText); 
+
+    try {
+        if (mode === 'text') {
+            // Asli Chatbot Connection
+            const response = await fetch('/api/generate/text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: promptText })
+            });
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                appendBotMessage(data.output); // AI ka asli jawab screen par dikhayega
+            } else {
+                appendBotMessage("Sorry, backend se connect nahi ho paya.");
+            }
+        } 
+        else if (mode === 'image') {
+            // Asli Image Generator Connection
+            const response = await fetch('/api/generate/image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: promptText })
+            });
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                appendGeneratedImage(data.outputUrl); // Real image screen par dikhayega
+            } else {
+                appendBotMessage("Image generate karne me koi masla aaya.");
+            }
         }
+    } catch (error) {
+        console.error("Error:", error);
+        appendBotMessage("Server down hai ya respond nahi kar raha.");
+    }
+}
+
     </script>
 
 </body>
