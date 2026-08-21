@@ -1455,52 +1455,125 @@
         </div>
     </div>
 
-    <script>
-        // ====== INPUT SUBMIT HANDLER (REAL API CONNECTION) ======
-async function handleAISubmit(promptText, mode) {
-    if (!promptText.trim()) return;
+        <script>
+    // Elements Selectors
+    const chatInput = document.querySelector('input[placeholder*="Describe what you want"]');
+    const sendButton = document.querySelector('button svg').parentElement; // Finds the send icon button
+    const chatContainer = document.querySelector('.app-shell'); // Adjustselector to match your chat history container
 
-    // 1. Chat Box mein user ka message dikhane ka code (jo pehle se aapki site me hai)
-    appendUserMessage(promptText); 
+    // State to trace selection mode (Text vs Image)
+    // Defaulting to text mode, you can change this dynamically via your UI tabs
+    let activeGenerationMode = 'text'; 
 
-    try {
-        if (mode === 'text') {
-            // Asli Chatbot Connection
-            const response = await fetch('/api/generate/text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: promptText })
-            });
-            const data = await response.json();
-            
-            if (data.status === 'success') {
-                appendBotMessage(data.output); // AI ka asli jawab screen par dikhayega
+    // Adjust mode dynamically if user clicks UI engine tabs
+    document.querySelectorAll('.nav-section button, .nav-tabs button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const btnText = btn.textContent.toLowerCase();
+            if (btnText.includes('image') || btnText.includes('studio')) {
+                activeGenerationMode = 'image';
             } else {
-                appendBotMessage("Sorry, backend se connect nahi ho paya.");
+                activeGenerationMode = 'text';
             }
-        } 
-        else if (mode === 'image') {
-            // Asli Image Generator Connection
-            const response = await fetch('/api/generate/image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: promptText })
-            });
-            const data = await response.json();
+        });
+    });
+
+    // Append Chat Nodes to UI
+    function appendMessageToUI(sender, text, isImage = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.margin = '16px 0';
+        messageDiv.style.padding = '12px 18px';
+        messageDiv.style.borderRadius = '12px';
+        messageDiv.style.maxWidth = '75%';
+        messageDiv.style.fontFamily = 'Inter, sans-serif';
+        
+        if (sender === 'You') {
+            messageDiv.style.background = 'rgba(99, 102, 241, 0.15)';
+            messageDiv.style.marginLeft = 'auto';
+            messageDiv.style.border = '1px solid rgba(99, 102, 241, 0.3)';
+            messageDiv.innerHTML = `<strong>You:</strong> <p>${text}</p>`;
+        } else {
+            messageDiv.style.background = '#0e111b';
+            messageDiv.style.marginRight = 'auto';
+            messageDiv.style.border = '1px solid rgba(255, 255, 255, 0.09)';
             
-            if (data.status === 'success') {
-                appendGeneratedImage(data.outputUrl); // Real image screen par dikhayega
+            if (isImage) {
+                messageDiv.innerHTML = `<strong>Star AI Engine:</strong><br><img src="${text}" alt="AI Generated" style="width:100%; max-width:400px; border-radius:8px; margin-top:8px; border: 1px solid rgba(255,255,255,0.1);"/>`;
             } else {
-                appendBotMessage("Image generate karne me koi masla aaya.");
+                messageDiv.innerHTML = `<strong>Star AI Engine:</strong> <p style="white-space: pre-wrap; line-height: 1.5;">${text}</p>`;
             }
         }
-    } catch (error) {
-        console.error("Error:", error);
-        appendBotMessage("Server down hai ya respond nahi kar raha.");
+        
+        // Find chat layout screen and append
+        const scrollArea = document.querySelector('.sidebar').nextElementSibling || chatContainer;
+        scrollArea.appendChild(messageDiv);
+        scrollArea.scrollTop = scrollArea.scrollHeight;
     }
-}
 
-    </script>
+    // MAIN HUD GATEWAY PIPELINE EXECUTION
+    async function processAIGeneration() {
+        const promptText = chatInput.value.trim();
+        if (!promptText) return;
+
+        // 1. User ka message UI par show karen
+        appendMessageToUI('You', promptText);
+        chatInput.value = ''; // Input box clear karen
+
+        // 2. Loading placeholder dikhayein
+        const loadingDiv = document.createElement('div');
+        loadingDiv.style.color = '#9296a8';
+        loadingDiv.style.margin = '10px';
+        loadingDiv.textContent = 'Star AI Core Node processing pipeline...';
+        const scrollArea = document.querySelector('.sidebar').nextElementSibling || chatContainer;
+        scrollArea.appendChild(loadingDiv);
+
+        try {
+            if (activeGenerationMode === 'text') {
+                // Call Real Live Text Backend
+                const response = await fetch('/api/generate/text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: promptText })
+                });
+                const data = await response.json();
+                loadingDiv.remove();
+
+                if (data.status === 'success') {
+                    appendMessageToUI('Star AI', data.output);
+                } else {
+                    appendMessageToUI('Star AI', 'Error: Backend core pipeline responded with failure.');
+                }
+            } 
+            else if (activeGenerationMode === 'image') {
+                // Call Real Live Image Backend
+                const response = await fetch('/api/generate/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: promptText })
+                });
+                const data = await response.json();
+                loadingDiv.remove();
+
+                if (data.status === 'success') {
+                    appendMessageToUI('Star AI', data.outputUrl, true);
+                } else {
+                    appendMessageToUI('Star AI', 'Error: Image engine layout generation failed.');
+                }
+            }
+        } catch (error) {
+            loadingDiv.remove();
+            console.error("Pipeline Communication Error:", error);
+            appendMessageToUI('Star AI', 'Server connection timed out. Verify network mapping routes.');
+        }
+    }
+
+    // Event Listeners for UI Triggers
+    sendButton.addEventListener('click', processAIGeneration);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            processAIGeneration();
+        }
+    });
+</script>
 
 </body>
 
